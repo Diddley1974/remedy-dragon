@@ -1,0 +1,11 @@
+# Root ignores
+node_modules/
+.env*
+# Next.js outputs (root and web)
+.next/
+out/
+web/.next/
+web/out/
+# OS junk
+.DS_Store
+Thumbs.db

@@ -3,14 +3,12 @@ export default function Home() {
     <main className="mx-auto max-w-3xl p-6">
       <h1 className="text-3xl font-bold">Remedy Dragon</h1>
       <p className="mt-3">
-        Educational information about supplements and Traditional Chinese
-        Medicine (TCM).
+        Educational information about supplements and Traditional Chinese Medicine (TCM).
       </p>
 
       <div className="mt-6 rounded-lg border p-3 text-sm">
-        <strong>Important:</strong> Remedy Dragon does not provide medical
-        advice, diagnosis, or treatment. For urgent symptoms, call emergency
-        services immediately.
+        <strong>Important:</strong> Remedy Dragon does not provide medical advice, diagnosis, or
+        treatment. For urgent symptoms, call emergency services immediately.
       </div>
 
       <div className="mt-8 grid gap-3">

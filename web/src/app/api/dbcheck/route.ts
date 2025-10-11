@@ -3,6 +3,16 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+
+export async function GET() {
+  const rows = await prisma.$queryRaw<{ search_path: string }[]>`SHOW search_path`;
+  const searchPath = rows[0]?.search_path ?? "";
+  return NextResponse.json({ searchPath });
+}
+
+/*
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -19,7 +29,7 @@ export async function GET() {
     tables: tables.map((t) => t.table_name), // t is typed
   });
 }
-
+*/
 /*
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/lib/db";

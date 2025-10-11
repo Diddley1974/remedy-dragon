@@ -4,8 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import type { Session } from "next-auth";
 
-type ConsentType = "privacy_policy" | "data_processing";
-type Consent = { type: ConsentType; withdrawn?: boolean };
+// DB enum literal values (no import needed)
+type DbConsentType = "PRIVACY_POLICY" | "DATA_PROCESSING";
+
+// Accept lowercase (wire) and DB enum (UPPERCASE)
+type WireConsentType = "privacy_policy" | "data_processing" | DbConsentType;
+type Consent = { type: WireConsentType; withdrawn?: boolean };
 
 type PostBody = {
   displayName?: string | null;
@@ -19,6 +23,19 @@ type PostBody = {
 function getUserId(session: Session | null): string | null {
   const id = session?.user && (session.user as { id?: unknown }).id;
   return typeof id === "string" ? id : null;
+}
+
+function toDbConsentType(t: WireConsentType): DbConsentType | null {
+  switch (t) {
+    case "privacy_policy":
+    case "PRIVACY_POLICY":
+      return "PRIVACY_POLICY";
+    case "data_processing":
+    case "DATA_PROCESSING":
+      return "DATA_PROCESSING";
+    default:
+      return null;
+  }
 }
 
 export async function GET() {
@@ -43,7 +60,7 @@ export async function POST(req: NextRequest) {
   try {
     body = (await req.json()) as PostBody;
   } catch {
-    // keep default empty body
+    // ignore malformed JSON; use defaults
   }
 
   const {
@@ -63,12 +80,14 @@ export async function POST(req: NextRequest) {
 
   if (Array.isArray(consents)) {
     for (const c of consents) {
-      if (!c?.type) continue;
-      const id = `${userId}:${c.type}`;
+      const mapped = c?.type ? toDbConsentType(c.type) : null;
+      if (!mapped) continue;
+
+      const id = `${userId}:${mapped}`;
       await prisma.consent.upsert({
         where: { id },
         update: { withdrawn: Boolean(c.withdrawn) },
-        create: { id, userId, type: c.type, withdrawn: Boolean(c.withdrawn) },
+        create: { id, userId, type: mapped, withdrawn: Boolean(c.withdrawn) },
       });
     }
   }

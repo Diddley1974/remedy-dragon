@@ -248,9 +248,16 @@ async function seedSymptomsAndRules() {
     });
   }
 
+  type Row = { id: string; slug: string | null };
+
   const cIndex: Record<string, string> = {};
-  const conditions = await prisma.condition.findMany({ select: { id: true, slug: true } });
-  conditions.forEach((c) => (cIndex[c.slug] = c.id));
+  const conditions = await prisma.condition.findMany({
+    select: { id: true, slug: true },
+  });
+
+  conditions.forEach((c: Row) => {
+    if (c.slug) cIndex[c.slug] = c.id;
+  });
 
   const rRows = readCSV("rules.csv");
   for (const r of rRows) {

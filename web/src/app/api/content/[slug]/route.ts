@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { slug } = await params;
 
   try {

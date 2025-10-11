@@ -1,19 +1,10 @@
 "use client";
-import { useState, FormEvent, Suspense } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function SignUpPage() {
-  // Suspense wraps any hook using useSearchParams
-  return (
-    <Suspense fallback={null}>
-      <SignUpInner />
-    </Suspense>
-  );
-}
-
-function SignUpInner() {
   const r = useRouter();
   const sp = useSearchParams();
   const callbackUrl = sp.get("callbackUrl") || "/account";
@@ -50,13 +41,7 @@ function SignUpInner() {
     }
 
     // Auto sign-in after successful signup
-    const s = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-      callbackUrl,
-    });
-
+    const s = await signIn("credentials", { email, password, redirect: false, callbackUrl });
     if (s?.ok) r.replace(callbackUrl);
     else r.replace(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
     setLoading(false);

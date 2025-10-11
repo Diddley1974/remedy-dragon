@@ -1,10 +1,23 @@
-"use client";
+import { Suspense } from "react";
+
+// Server Component (default)
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<main className="mx-auto max-w-md p-6">Loading…</main>}>
+      <SignInForm />
+    </Suspense>
+  );
+}
+
+// Client child that uses hooks
+("use client");
+
 import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignInPage() {
+function SignInForm() {
   const r = useRouter();
   const sp = useSearchParams();
   const callbackUrl = sp.get("callbackUrl") || "/account";

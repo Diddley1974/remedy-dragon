@@ -1,0 +1,7 @@
+Remove-Item -Force .next
+Remove-Item -Force node_modules
+Remove-Item -Force package-lock.json
+
+npm install
+npm prisma generate
+npm run dev

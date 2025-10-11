@@ -1,0 +1,45 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = String((session.user as any).id);
+
+  const [profile, consents] = await Promise.all([
+    prisma.profile.findUnique({ where: { userId } }),
+    prisma.consent.findMany({ where: { userId } }),
+  ]);
+
+  return NextResponse.json({ profile, consents });
+}
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = String((session.user as any).id);
+
+  const body = await req.json().catch(() => ({}));
+  const { displayName, age, sex, medications = [], conditions = [], consents = [] } = body;
+
+  await prisma.profile.upsert({
+    where: { userId },
+    update: { displayName, age: age ?? null, sex: sex ?? null, medications, conditions },
+    create: { userId, displayName: displayName ?? null, age: age ?? null, sex: sex ?? null, medications, conditions },
+  });
+
+  if (Array.isArray(consents)) {
+    for (const c of consents) {
+      if (!c?.type) continue;
+      await prisma.consent.upsert({
+        where: { id: `${userId}:${c.type}` },
+        update: { withdrawn: !!c.withdrawn },
+        create: { id: `${userId}:${c.type}`, userId, type: c.type, withdrawn: !!c.withdrawn },
+      });
+    }
+  }
+
+  return NextResponse.json({ ok: true });
+}

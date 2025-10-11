@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "npm --prefix web run lint",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed:content": "tsx prisma/seed/content.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
